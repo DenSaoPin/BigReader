@@ -32,5 +32,9 @@
 *.app
 
 #Directories
-../.vs/
+/../.vs/
+Debug/
+x64/
+/../Debug/
+//../x64/
 
