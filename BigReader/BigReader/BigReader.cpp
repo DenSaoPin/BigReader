@@ -6,14 +6,14 @@
 #include <iostream>
 #include <map>
 #include <unordered_map>
-#define NULL = 0
+//#define NULL = 0
 #define BUFF_SIZE 4085*8
 //#define OFFSET 97;
 
 class FileReader
 {
-
-	std::ifstream ifs;
+	FILE * pFile = nullptr;
+	//std::ifstream ifs;
 	unsigned char buff[BUFF_SIZE] = { 0 };
 
 public:
@@ -23,26 +23,23 @@ public:
 
 	bool open(const char *file)
 	{
-		ifs = std::ifstream(file);
-		return ifs.is_open();
+		pFile = fopen(file, "r");
+		
+		if (pFile == nullptr)
+			return false;
+		//ifs = std::ifstream(file);
+		return true;
 	}
 
 	size_t read(void *pBuff, int count)
 	{
-		ifs.read((char *)pBuff, count);
-		return ifs.gcount();
+		
+		//ifs.read((char *)pBuff, count);
+		//return ifs.gcount();
+		return readedSymbols = fread(pBuff, 1, count, pFile);
 	}
 
-	bool eof() const
-	{
-		return  ifs.eof();
-	}
 
-	size_t getReadedCounter() const
-	{
-		return ifs.gcount();
-	}
-	
 	char GetChar()
 	{
 		if (counter == readedSymbols)
