@@ -12,53 +12,52 @@
 
 class FileReader
 {
-	FILE * pFile = nullptr;
+	//FILE * pFile = nullptr;
 	//std::ifstream ifs;
-	unsigned char buff[BUFF_SIZE] = { 0 };
 
 public:
 
-	size_t readedSymbols = 0;
-	size_t counter = 0;
+	
 
-	bool open(const char *file)
-	{
-		pFile = fopen(file, "r");
-		
-		if (pFile == nullptr)
-			return false;
-		//ifs = std::ifstream(file);
-		return true;
-	}
+	//bool open(const char *file)
+	//{
+	//	pFile = fopen(file, "r");
+	//	
+	//	if (pFile == nullptr)
+	//		return false;
+	//	//ifs = std::ifstream(file);
+	//	return true;
+	//}
 
-	size_t read(void *pBuff, int count)
-	{
-		
-		//ifs.read((char *)pBuff, count);
-		//return ifs.gcount();
-		return readedSymbols = fread(pBuff, 1, count, pFile);
-	}
+	//size_t read(void *pBuff, int count)
+	//{
+	//	
+	//	//ifs.read((char *)pBuff, count);
+	//	//return ifs.gcount();
+	//	return ;
+	//}
 
 
-	char GetChar()
-	{
-		if (counter == readedSymbols)
-		{
-			readedSymbols = read(buff, BUFF_SIZE);
+	//char GetChar()
+	//{
+	//	pFile = fopen(file, "r");
 
-			if (readedSymbols == 0)
-				return 0x00;
+	//	if (pFile == nullptr)
+	//		return false;
 
-			counter = 0;
+	//	if (counter == readedSymbols)
+	//	{
+	//		readedSymbols = fread(buff, 1, BUFF_SIZE, pFile);
 
-		}
-				
-		return buff[counter++];
-	};
+	//		if (readedSymbols == 0)
+	//			return 0x00;
+
+	//		counter = 0;
+	//	}
+	//			
+	//	return buff[counter++];
+	//};
 };
-
-
-
 
 
 int main(int argc, char* argv[])
@@ -66,28 +65,46 @@ int main(int argc, char* argv[])
 	const int OFFSET = 97;
 	
 	std::unordered_map<std::string, int> ::iterator it;
-	
 	std::unordered_map<std::string, int> wordHashMap;
-
-
 	std::unordered_map<std::string, int> AlphabetBuckets[26];
 
-	
-	FileReader fr;
-	
-	if(!fr.open("../BigReader/data/bb.txt"))
+	size_t readedSymbols = 0;
+	size_t counter = 0;
+
+	unsigned char buff[BUFF_SIZE] = { 0 };
+
+	FILE *pFile = fopen("../BigReader/data/bb.txt", "r");
+
+	if(pFile == 0)
 	{
 		std::cout << "Can't open file\n";
 		return -1;
 	}
+	
+	
+
+
 	std::string rwS;
 	char resultWord[255];
 	int rwC = 0;
 	std::unordered_map<std::string, int> ::iterator it_end = wordHashMap.end();
 	char ch;
-	while((ch = fr.GetChar()) != 0)
+	while(true)
 	{
-		if ((unsigned char)ch > 127 || !isalpha(ch))
+		//(ch = fr.GetChar()) != 0
+		if (counter == readedSymbols)
+		{
+			readedSymbols = fread(buff, 1, BUFF_SIZE, pFile);
+
+			if (readedSymbols == 0)
+				return 0;
+
+			counter = 0;
+		}
+
+		buff[counter++];
+
+		if ((unsigned char)buff[counter] > 127 || !isalpha(buff[counter]))
 		{
 			if(rwC == 0)
 			{
@@ -106,27 +123,12 @@ int main(int argc, char* argv[])
 				wordHashMap.insert(std::make_pair(rwS, 1));
 			}
 
-
-			//char firstLetter = resultWord[0] - OFFSET;
-
-			//it = AlphabetBuckets[firstLetter].find(resultWord);
-
-			//if (it != AlphabetBuckets[firstLetter].end())
-			//{
-			//	it->second++;
-			//}
-			//else 
-			//{
-
-			//	AlphabetBuckets[firstLetter].insert(std::make_pair(resultWord, 1));
-			//}
-
 			rwC = 0;
 
 			continue;
 		}
 		//TODO: Maybe use char array?
-		resultWord[rwC++] = tolower(ch);
+		resultWord[rwC++] = tolower(buff[counter]);
 
 	}
 }
