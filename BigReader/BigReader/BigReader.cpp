@@ -19,7 +19,7 @@ class FileReader
 public:
 
 	size_t readedSymbols = 0;
-	int counter = 0;
+	size_t counter = 0;
 
 	bool open(const char *file)
 	{
@@ -45,13 +45,15 @@ public:
 	
 	char GetChar()
 	{
-		if (counter == readedSymbols || readedSymbols == 0)
+		if (counter == readedSymbols)
 		{
 			readedSymbols = read(buff, BUFF_SIZE);
-			counter = 0;
 
 			if (readedSymbols == 0)
 				return 0x00;
+
+			counter = 0;
+
 		}
 				
 		return buff[counter++];
@@ -76,49 +78,39 @@ int main(int argc, char* argv[])
 	
 	FileReader fr;
 	
-	if(!fr.open("../BigReader/data/BigText.txt"))
+	if(!fr.open("../BigReader/data/bb.txt"))
 	{
 		std::cout << "Can't open file\n";
 		return -1;
 	}
-
-	std::string resultWord(255, 0);
-	resultWord.clear();
-
-	while(true)
+	std::string rwS;
+	char resultWord[255];
+	int rwC = 0;
+	std::unordered_map<std::string, int> ::iterator it_end = wordHashMap.end();
+	char ch;
+	while((ch = fr.GetChar()) != 0)
 	{
-		char ch = fr.GetChar();
-
-		ch = tolower(ch);
-
 		if ((unsigned char)ch > 127 || !isalpha(ch))
 		{
-			if (ch == 0x00)
-			{
-				std::cout << "End file reading";
-				return 0;
-			}
-	
-			if(resultWord.empty())
+			if(rwC == 0)
 			{
 				continue;
 			}
-			
-			it = wordHashMap.find(resultWord);
+			rwS.assign(resultWord, rwC);
+			it = wordHashMap.find(rwS);
 
-			if (it != wordHashMap.end())
+			if (it != it_end)
 			{
 				it->second++;
 			}
 			else 
 			{
 
-				wordHashMap.insert(std::make_pair(resultWord, 1));
+				wordHashMap.insert(std::make_pair(rwS, 1));
 			}
 
 
-
-			//char firstLetter = resultWord.front() - OFFSET;
+			//char firstLetter = resultWord[0] - OFFSET;
 
 			//it = AlphabetBuckets[firstLetter].find(resultWord);
 
@@ -132,12 +124,12 @@ int main(int argc, char* argv[])
 			//	AlphabetBuckets[firstLetter].insert(std::make_pair(resultWord, 1));
 			//}
 
-			resultWord.clear();
+			rwC = 0;
 
 			continue;
 		}
 		//TODO: Maybe use char array?
-		resultWord += ch;
+		resultWord[rwC++] = tolower(ch);
 
 	}
 }
