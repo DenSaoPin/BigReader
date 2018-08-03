@@ -10,60 +10,6 @@
 #define BUFF_SIZE 4085*8
 //#define OFFSET 97;
 
-class FileReader
-{
-
-	std::ifstream ifs;
-	unsigned char buff[BUFF_SIZE] = { 0 };
-
-public:
-
-	size_t readedSymbols = 0;
-	size_t counter = 0;
-
-	bool open(const char *file)
-	{
-		ifs = std::ifstream(file);
-		return ifs.is_open();
-	}
-
-	size_t read(void *pBuff, int count)
-	{
-		ifs.read((char *)pBuff, count);
-		return ifs.gcount();
-	}
-
-	bool eof() const
-	{
-		return  ifs.eof();
-	}
-
-	size_t getReadedCounter() const
-	{
-		return ifs.gcount();
-	}
-	
-	char GetChar()
-	{
-		if (counter == readedSymbols)
-		{
-			readedSymbols = read(buff, BUFF_SIZE);
-
-			if (readedSymbols == 0)
-				return 0x00;
-
-			counter = 0;
-
-		}
-				
-		return buff[counter++];
-	};
-};
-
-
-
-
-
 int main(int argc, char* argv[])
 {
 	const int OFFSET = 97;
@@ -75,10 +21,15 @@ int main(int argc, char* argv[])
 
 	std::unordered_map<std::string, int> AlphabetBuckets[26];
 
-	
-	FileReader fr;
-	
-	if(!fr.open("../BigReader/data/bb.txt"))
+	size_t readedSymbols = 0;
+	size_t counter = 0;
+	char  buff[BUFF_SIZE] = { 0 };
+	std::ifstream ifs;
+
+
+
+	ifs.open("../BigReader/data/bb.txt");
+	if(!ifs)
 	{
 		std::cout << "Can't open file\n";
 		return -1;
@@ -88,8 +39,23 @@ int main(int argc, char* argv[])
 	int rwC = 0;
 	std::unordered_map<std::string, int> ::iterator it_end = wordHashMap.end();
 	char ch;
-	while((ch = fr.GetChar()) != 0)
+	while(true)
 	{
+		if (counter == readedSymbols)
+		{
+			ifs.read(buff, BUFF_SIZE);
+
+			readedSymbols = ifs.gcount();
+
+			if (readedSymbols == 0)
+				return 0;
+
+			counter = 0;
+
+		}
+
+		ch = buff[counter++];
+
 		if ((unsigned char)ch > 127 || !isalpha(ch))
 		{
 			if(rwC == 0)
